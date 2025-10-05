@@ -1,61 +1,174 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel PokéAPI Proxy
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This project provides a simple Laravel-based API to fetch and transform data from the external PokéAPI (https://pokeapi.co). It fetches a list of Pokémon, then retrieves detailed information for each, merging them into a structured JSON response.
 
-## About Laravel
+## Prerequisites
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Before you begin, ensure you have the following installed on your system:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+*   **PHP:** Version 8.1 or higher (PHP 8.4.13 is used in the provided context).
+*   **Composer:** The PHP dependency manager.
+*   **Node.js & npm (Optional):** If you plan to work with frontend assets, though not strictly required for this API backend.
+*   **Git:** For cloning the repository.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Setup Instructions (PowerShell)
 
-## Learning Laravel
+Follow these steps to get the API up and running on your local machine.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1.  **Clone the repository:**
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+    ```powershell
+    git clone <your-repository-url> pokemon-api-proxy
+    cd pokemon-api-proxy
+    ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2.  **Install Composer dependencies:**
 
-## Laravel Sponsors
+    ```powershell
+    composer install
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+3.  **Create your environment file:**
+    This copies the example environment file, which you'll configure next.
 
-### Premium Partners
+    ```powershell
+    Copy-Item ".env.example" ".env"
+    ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+4.  **Generate an application key:**
+    This key is crucial for Laravel's security features.
 
-## Contributing
+    ```powershell
+    php artisan key:generate
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5.  **Configure PokéAPI Base URL:**
+    Open the `.env` file you just created (e.g., in a text editor like VS Code or Notepad).
+    Ensure the `POKEAPI_BASE_URL` is correctly set, along with an optional timeout.
 
-## Code of Conduct
+    ```ini
+    # .env
+    POKEAPI_BASE_URL="https://pokeapi.co/api/v2"
+    POKEAPI_TIMEOUT=10
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    Also, check `config/services.php` to ensure the `pokeapi` configuration matches:
 
-## Security Vulnerabilities
+    ```php
+    // config/services.php
+    'pokeapi' => [
+        'base_url' => env('POKEAPI_BASE_URL', 'https://pokeapi.co/api/v2'),
+        'timeout' => env('POKEAPI_TIMEOUT', 10),
+    ],
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+6.  **Ensure `RouteServiceProvider` is present and registered:**
+    Verify that `app/Providers/RouteServiceProvider.php` exists and contains the API route mapping. If it's missing (as might happen in some minimal Laravel installations), you'll need to create it with the standard Laravel contents that define how `routes/api.php` is loaded.
 
-## License
+    Also, check `config/app.php` within the `'providers'` array to ensure `App\Providers\RouteServiceProvider::class` is listed.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+7.  **Clear Laravel caches:**
+    This ensures that all configuration, routes, and views are reloaded properly.
+
+    ```powershell
+    php artisan optimize:clear
+    php artisan config:clear
+    php artisan route:clear
+    ```
+
+## Running the Application (PowerShell)
+
+1.  **Start the Laravel development server:**
+
+    ```powershell
+    php artisan serve --host=127.0.0.1 --port=8080
+    ```
+    This will start the server, typically accessible at `http://127.0.0.1:8080`.
+
+2.  **Access the API endpoints:**
+
+    *   **List Pokémon:**
+        `GET http://127.0.0.1:8080/api/pokemon`
+        (Optional query parameters: `limit` and `offset`, e.g., `http://127.0.0.1:8080/api/pokemon?limit=10&offset=0`)
+
+    *   **Get Single Pokémon Details:**
+        `GET http://127.0.0.1:8080/api/pokemon/{nameOrId}`
+        (e.g., `http://127.0.0.1:8080/api/pokemon/pikachu` or `http://127.0.0.1:8080/api/pokemon/25`)
+
+    *   **Get Single Pokémon Species Details (original endpoint, not modified to specs):**
+        `GET http://127.0.0.1:8080/api/pokemon/{nameOrId}/species`
+        (e.g., `http://127.0.0.1:8080/api/pokemon/pikachu/species`)
+
+## Troubleshooting
+
+### 1. "404 Not Found" for API Routes
+
+If you're getting an HTML "404 Not Found" page when accessing `/api/pokemon`, it means Laravel isn't recognizing your API routes.
+
+*   **Check `routes/api.php`:** Ensure your API routes are defined in `routes/api.php` and not `routes/web.php`.
+*   **Verify RouteServiceProvider:**
+    *   Make sure `app/Providers/RouteServiceProvider.php` exists and correctly defines the API route group:
+        ```php
+        // app/Providers/RouteServiceProvider.php
+        Route::middleware('api')
+            ->prefix('api')
+            ->group(base_path('routes/api.php'));
+        ```
+    *   Ensure `App\Providers\RouteServiceProvider::class` is present in the `providers` array in `config/app.php`.
+*   **Controller Namespace:** Double-check that the namespace in your `PokemonController.php` (e.g., `namespace App\Http\Controllers\Api;`) matches its file path (`app/Http/Controllers/Api/PokemonController.php`), and that the `use` statement in `routes/api.php` also matches (`use App\Http\Controllers\Api\PokemonController;`).
+*   **Clear Caches:** Always run `php artisan optimize:clear` and `php artisan route:clear` after making changes to routes or providers.
+*   **List Routes:** Use `php artisan route:list` to see all registered routes. You should see entries for `/api/pokemon`, `/api/pokemon/{nameOrId}`, etc. If not, the routes are still not loading.
+
+### 2. "cURL error 60: SSL certificate problem"
+
+This error indicates that PHP's cURL extension cannot verify the SSL certificate of `pokeapi.co`. This is common in local development environments.
+
+**Recommended Fix (PHP Configuration):**
+
+1.  **Download `cacert.pem`:** Get the latest CA certificates bundle from the cURL website:
+    *   Go to: <https://curl.se/ca/cacert.pem>
+    *   Save this file to a location on your system, for example, `C:\php\extras\ssl\cacert.pem` or inside your project like `storage/certs/cacert.pem`.
+
+2.  **Configure `php.ini`:**
+    *   Find your active `php.ini` file by running `php --ini` in PowerShell. It will show you the path to the loaded configuration file.
+    *   Open `php.ini` in a text editor.
+    *   Search for `curl.cainfo` and `openssl.cafile`. Uncomment these lines (remove the `;` at the beginning) and set their values to the absolute path of your `cacert.pem` file.
+        ```ini
+        ; For Windows (example path)
+        curl.cainfo = "C:\php\extras\ssl\cacert.pem"
+        openssl.cafile = "C:\php\extras\ssl\cacert.pem"
+
+        ; For Linux/macOS (example path)
+        ; curl.cainfo = "/etc/ssl/certs/cacert.pem"
+        ; openssl.cafile = "/etc/ssl/certs/cacert.pem"
+        ```
+    *   Save `php.ini`.
+
+3.  **Restart your PHP/Laravel server:** It's crucial to restart `php artisan serve` for the `php.ini` changes to take effect.
+
+**Temporary Development Fix (Not for Production):**
+
+If you cannot modify `php.ini`, you can disable SSL verification directly in your HTTP calls for development purposes. **Do not use this in production as it bypasses critical security checks.**
+
+In `app/Http/Controllers/Api/PokemonController.php`, modify your `Http::get` calls:
+
+```php
+// In listPokemon, getPokemon, getSpecies methods
+$response = Http::withOptions(['verify' => false]) // <-- Add this line
+    ->timeout($this->timeout)
+    ->acceptJson()
+    ->get("{$this->baseUrl}/pokemon", [
+        'limit' => $limit,
+        'offset' => $offset,
+    ]);
+```
+
+### 3. Other General Issues
+
+*   **Composer Dependencies:** If you missed `composer install`, many classes won't be found.
+*   **`.env` not set up:** Ensure you've copied `.env.example` to `.env` and configured it.
+*   **`APP_KEY` not generated:** Run `php artisan key:generate` if you haven't.
+*   **Server not running:** Ensure `php artisan serve` is actively running in your terminal.
+*   **PHP Version:** Verify your PHP version meets the Laravel project's requirements.
+
+If you encounter persistent issues, check your `laravel.log` file in the `storage/logs` directory for more detailed error messages.
