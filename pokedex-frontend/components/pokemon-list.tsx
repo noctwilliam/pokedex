@@ -90,7 +90,7 @@ export function PokemonList() {
 					setHasMore(false);
 					setPage(0);
 				} else {
-					// Paginated mode
+					// Paginated list mode
 					if (!hasMoreRef.current && nextPage !== 0) {
 						return;
 					}
