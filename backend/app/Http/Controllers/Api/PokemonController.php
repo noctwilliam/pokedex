@@ -20,6 +20,23 @@ class PokemonController extends Controller
         $this->timeout = (int) config('services.pokeapi.timeout', 10);
     }
 
+    private function extractPokemonData(array $pokemonDetail): array
+    {
+        $name = $pokemonDetail['name'] ?? null;
+        $image = $pokemonDetail['sprites']['other']['official-artwork']['front_default'] ?? null;
+        $types = array_map(fn($typeInfo) => $typeInfo['type']['name'], $pokemonDetail['types'] ?? []);
+        $height = $pokemonDetail['height'] ?? null;
+        $weight = $pokemonDetail['weight'] ?? null;
+
+        return [
+            "name" => $name,
+            "image" => $image,
+            "types" => $types,
+            "height" => $height,
+            "weight" => $weight,
+        ];
+    }
+
     /**
      * GET /api/pokemon?limit=20&offset=0
      * Fetches a list of Pokémon, then retrieves details for each,
@@ -48,7 +65,7 @@ class PokemonController extends Controller
         }
 
         $pokemonReferences = $listResponse->json('results', []);
-        $mergedPokemonData = []; //init a new array
+        $mergedPokemonData = [];
 
         foreach ($pokemonReferences as $pokemonRef) {
             $detailResponse = Http::timeout($this->timeout)
@@ -56,21 +73,7 @@ class PokemonController extends Controller
                 ->get($pokemonRef['url']);
 
             if ($detailResponse->successful()) {
-                $pokemonDetail = $detailResponse->json();
-
-                $name = $pokemonDetail['name'] ?? null;
-                $image = $pokemonDetail['sprites']['other']['official-artwork']['front_default'] ?? null;
-                $types = array_map(fn($typeInfo) => $typeInfo['type']['name'], $pokemonDetail['types'] ?? []);
-                $height = $pokemonDetail['height'] ?? null;
-                $weight = $pokemonDetail['weight'] ?? null;
-
-                $mergedPokemonData[] = [
-                    "name" => $name,
-                    "image" => $image,
-                    "types" => $types,
-                    "height" => $height,
-                    "weight" => $weight,
-                ];
+                $mergedPokemonData[] = $this->extractPokemonData($detailResponse->json());
             }
         }
 
@@ -102,7 +105,7 @@ class PokemonController extends Controller
             ], 502);
         }
 
-        return response()->json($response->json());
+        return response()->json($this->extractPokemonData($response->json()));
     }
 
     /**
